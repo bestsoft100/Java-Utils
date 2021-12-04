@@ -127,5 +127,9 @@ public abstract class StringUtils {
 		
 		return array;
 	}
+
+	public static String getResourceAsString(String string) {
+		return readInputStream(StringUtils.class.getResourceAsStream(string));
+	}
 	
 }
