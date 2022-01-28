@@ -13,6 +13,10 @@ public abstract class FileUtils {
 	public static void createFolder(File file) {
 		if(file == null) throw new NullPointerException();
 		
+		if(file.exists()) {
+			if(file.isDirectory()) return;
+			else file.delete();
+		}
 		if(!file.mkdirs()) {
 			throw new RuntimeException("Could not create folder: "+file);
 		}
@@ -21,7 +25,7 @@ public abstract class FileUtils {
 	public static void createFolderForFile(File file) {
 		if(file == null) throw new NullPointerException();
 		
-		createFolder(file.getAbsoluteFile());
+		createFolder(file.getParentFile());
 	}
 	
 	public static void createNewFile(File file) {
