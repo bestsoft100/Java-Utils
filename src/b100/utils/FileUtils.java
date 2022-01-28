@@ -10,38 +10,46 @@ import java.util.List;
 
 public abstract class FileUtils {
 	
-	public static boolean logging = true;
-	
-	private static void log(String s) {
-		if(logging) {
-			System.out.println(s);
+	public static void createFolder(File file) {
+		if(file == null) throw new NullPointerException();
+		
+		if(!file.mkdirs()) {
+			throw new RuntimeException("Could not create folder: "+file);
 		}
 	}
 	
-	public static boolean createFile(File file) {
-		return createFile(file, logging);
-	}
-	
-	public static boolean createFolder(File file) {
-		return file.mkdirs();
-	}
-	
-	private static boolean createFile(File file, boolean log) {
-		if(file == null)
-			throw new NullPointerException();
+	public static void createFolderForFile(File file) {
+		if(file == null) throw new NullPointerException();
 		
-		if(log && !file.exists()) System.out.println("Creating File: "+file.getAbsolutePath());
+		createFolder(file.getAbsoluteFile());
+	}
+	
+	public static void createNewFile(File file) {
+		if(file == null) throw new NullPointerException();
+		
+		if(file.exists()) {
+			file.delete();
+		}
+		createFile(file);
+	}
+	
+	private static void createFile(File file) {
+		if(file == null) throw new NullPointerException();
+		if(file.exists()) return;
 		
 		try {
-			file = file.getAbsoluteFile();
-			file.getParentFile().mkdirs();
-			return file.createNewFile();
+			createFolderForFile(file);
+			if(!file.createNewFile()) {
+				throw new RuntimeException("Could not create file: "+file);
+			}
 		}catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
 	public static String getFileExtension(File file) {
+		if(file == null) throw new NullPointerException();
+		
 		String path = file.getAbsoluteFile().getAbsolutePath();
 		
 		String ext = "";
@@ -62,25 +70,33 @@ public abstract class FileUtils {
 	}
 	
 	public static String getFileExtension(String path) {
+		StringUtils.validateStringNotEmpty(path);
+		
 		return getFileExtension(new File(path));
 	}
 	
 	public static void copyAll(String from, String to) {
+		StringUtils.validateStringNotEmpty(from);
+		StringUtils.validateStringNotEmpty(to);
+		
 		copyAll(new File(from), new File(to));
 	}
 	
 	public static void copy(String from, String to) {
+		StringUtils.validateStringNotEmpty(from);
+		StringUtils.validateStringNotEmpty(to);
+		
 		copy(new File(from), new File(to));
 	}
 	
 	public static void copyAll(File from, File to) {
+		if(from == null) throw new NullPointerException();
+		if(to == null) throw new NullPointerException();
+		
 		List<File> files = getAllFiles(from);
 		
 		String fromPath = from.getAbsolutePath();
 		String toPath = to.getAbsolutePath();
-		
-		log("Copying "+files.size()+" files from "+from.getAbsolutePath()+" to "+to.getAbsolutePath());
-		long start = System.nanoTime();
 		
 		for(File oldFile : files) {
 			String oldPath = oldFile.getAbsolutePath();
@@ -93,47 +109,38 @@ public abstract class FileUtils {
 			File newFile = new File(newPath);
 			copy(oldFile, newFile);
 		}
-		
-		long end = System.nanoTime();
-		log("Copied "+files.size()+" files in "+((end-start)/1000000)+"ms");
 	}
 	
 	public static void copy(File from, File to) {
-		if(from == null)
-			throw new NullPointerException();
-		if(to == null)
-			throw new NullPointerException();
-		if(!from.exists())
-			throw new RuntimeException("File doesn't exist: "+from.getAbsolutePath());
-		if(!from.isFile()) {
-			throw new RuntimeException("Not a file: "+from.getAbsolutePath());
-		}
-		
-		InputStream inputStream;
-		OutputStream outputStream;
+		if(from == null) throw new NullPointerException();
+		if(to == null) throw new NullPointerException();
+		if(!from.exists()) throw new RuntimeException("File doesn't exist: "+from.getAbsolutePath());
 		
 		try {
-			inputStream = new FileInputStream(from);
+			createNewFile(to);
 			
-			createFile(to, false);
-			outputStream = new FileOutputStream(to);
+			InputStream in = new FileInputStream(from);
+			OutputStream out = new FileOutputStream(to);
 			
-			while(inputStream.available() > 0) {
-				outputStream.write(inputStream.read());
-			}
+			StreamUtils.transferData(in, out);
 			
-			inputStream.close();
-			outputStream.close();
+			in.close();
+			out.close();
 		}catch (Exception e) {
 			throw new RuntimeException("Could not copy from "+from.getAbsolutePath()+" to "+to.getAbsolutePath(), e);
 		}
 	}
 	
 	public static List<File> getAllFiles(File folder){
+		if(folder == null) throw new NullPointerException();
+		
 		return getAllFiles(new ArrayList<>(), folder);
 	}
 	
 	public static List<File> getAllFiles(List<File> files, File folder) {
+		if(files == null) throw new NullPointerException();
+		if(folder == null) throw new NullPointerException();
+		
 		File[] files2 = folder.listFiles();
 		for(File file : files2) {
 			if(file.isFile()) {
@@ -144,6 +151,18 @@ public abstract class FileUtils {
 			}
 		}
 		return files;
+	}
+	
+	public static void validateFileExists(File file) {
+		if(file == null) throw new NullPointerException();
+		if(!file.exists()) throw new RuntimeException("File "+file+" doesn't exist!");
+		if(!file.isFile()) throw new RuntimeException("Not a file: "+file);
+	}
+	
+	public static void validateFolderExists(File folder) {
+		if(folder == null) throw new NullPointerException();
+		if(!folder.exists()) throw new RuntimeException("Folder "+folder+" doesn't exist!");
+		if(!folder.isDirectory()) throw new RuntimeException("Not a folder: "+folder);
 	}
 	
 }

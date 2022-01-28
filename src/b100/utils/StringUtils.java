@@ -9,56 +9,50 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.List;
 
-import b100.utils.err.MissingFileException;
-
 public abstract class StringUtils {
 	
-	public static String loadFromFile(String path) {
-		if(path == null)
-			throw new NullPointerException();
+	public static String getFileContentAsString(String path) {
+		validateStringNotEmpty(path);
 		
-		return loadFromFile(new File(path));
+		return getFileContentAsString(new File(path));
 	}
 	
-	public static String loadFromFile(File file) {
-		if(file == null)
-			throw new NullPointerException();
-		if(!file.exists() || !file.isFile()) {
-			throw new MissingFileException(file);
-		}
+	public static String getFileContentAsString(File file) {
+		FileUtils.validateFileExists(file);
 		
 		try{
-			return readInputStream(new FileInputStream(file));
+			return readInputString(new FileInputStream(file));
 		}catch (Exception e) {
 			throw new RuntimeException("Error while reading file", e);
 		}
 	}
 	
-	public static void saveToFile(String path, String content) {
-		saveToFile(new File(path), content);
+	public static void saveStringToFile(String path, String content) {
+		validateStringNotEmpty(path);
+		validateStringNotEmpty(content);
+		
+		saveStringToFile(new File(path), content);
 	}
 	
-	public static void saveToFile(File file, String content) {
-		if(file == null)
-			throw new NullPointerException();
-		if(content == null)
-			throw new NullPointerException();
+	public static void saveStringToFile(File file, String content) {
+		FileUtils.validateFileExists(file);
+		validateStringNotEmpty(content);
+		
+		if(file == null) throw new NullPointerException();
+		if(content == null) throw new NullPointerException();
 		
 		try {
+			FileUtils.createNewFile(file);
 			FileWriter fw = new FileWriter(file);
-			
-			FileUtils.createFile(file);
 			fw.write(content);
-			
 			fw.close();
 		}catch (Exception e) {
 			throw new RuntimeException(file.getAbsolutePath(), e);
 		}
 	}
 	
-	public static String readInputStream(InputStream inputStream) {
-		if(inputStream == null)
-			throw new NullPointerException();
+	public static String readInputString(InputStream inputStream) {
+		if(inputStream == null) throw new NullPointerException();
 		
 		try {
 			InputStreamReader reader = new InputStreamReader(inputStream);
@@ -66,16 +60,11 @@ public abstract class StringUtils {
 			
 			String string = "";
 			String line = null;
-			boolean first = true;
+			boolean firstLine = true;
 			
-			while(true) {
-				line = br.readLine();
-				
-				if(line == null)
-					break;
-				
-				if(first) {
-					first = false;
+			while((line = br.readLine()) != null) {
+				if(firstLine) {
+					firstLine = false;
 				}else {
 					line = "\n" + line;
 				}
@@ -92,7 +81,9 @@ public abstract class StringUtils {
 		}
 	}
 	
-	public static String getWebsiteContent(String url) {
+	public static String getWebsiteContentAsString(String url) {
+		validateStringNotEmpty(url);
+		
 		URL u = null;
 		InputStream is = null;
 		
@@ -108,14 +99,16 @@ public abstract class StringUtils {
 			throw new RuntimeException(u.toString(), e);
 		}
 		
-		return readInputStream(is);
+		return readInputString(is);
 	}
 	
-	public static void validateNotEmpty(String string) {
-		if(string == null)
-			throw new NullPointerException();
-		if(string.length() == 0)
-			throw new RuntimeException("Empty String");
+	public static boolean isStringEmpty(String string) {
+		return string == null || string.length() == 0;
+	}
+	
+	public static void validateStringNotEmpty(String string) {
+		if(string == null) throw new NullPointerException();
+		if(string.length() == 0) throw new RuntimeException("Empty String");
 	}
 	
 	public static String[] toArray(List<String> list) {
@@ -129,7 +122,7 @@ public abstract class StringUtils {
 	}
 
 	public static String getResourceAsString(String string) {
-		return readInputStream(StringUtils.class.getResourceAsStream(string));
+		return readInputString(StringUtils.class.getResourceAsStream(string));
 	}
 	
 }
