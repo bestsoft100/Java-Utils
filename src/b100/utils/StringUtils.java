@@ -31,11 +31,11 @@ public abstract class StringUtils {
 		validateStringNotEmpty(path);
 		validateStringNotEmpty(content);
 		
-		saveStringToFile(new File(path), content);
+		saveStringToFile(new File(path).getAbsoluteFile(), content);
 	}
 	
 	public static void saveStringToFile(File file, String content) {
-		FileUtils.validateFileExists(file);
+		FileUtils.createNewFile(file);
 		validateStringNotEmpty(content);
 		
 		if(file == null) throw new NullPointerException();

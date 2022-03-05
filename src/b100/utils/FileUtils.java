@@ -11,14 +11,18 @@ import java.util.List;
 public abstract class FileUtils {
 	
 	public static void createFolder(File file) {
-		if(file == null) throw new NullPointerException();
-		
-		if(file.exists()) {
-			if(file.isDirectory()) return;
-			else file.delete();
-		}
-		if(!file.mkdirs()) {
-			throw new RuntimeException("Could not create folder: "+file);
+		try {
+			if(file == null) throw new NullPointerException();
+			
+			if(file.exists()) {
+				if(file.isDirectory()) return;
+				else file.delete();
+			}
+			if(!file.mkdirs()) {
+				throw new RuntimeException("Folder not created!");
+			}
+		}catch (Exception e) {
+			throw new RuntimeException("Creating Folder: "+file);
 		}
 	}
 	
@@ -37,17 +41,17 @@ public abstract class FileUtils {
 		createFile(file);
 	}
 	
-	private static void createFile(File file) {
+	public static void createFile(File file) {
 		if(file == null) throw new NullPointerException();
 		if(file.exists()) return;
 		
 		try {
 			createFolderForFile(file);
 			if(!file.createNewFile()) {
-				throw new RuntimeException("Could not create file: "+file);
+				throw new RuntimeException("File not created!");
 			}
 		}catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Creating File: "+file, e);
 		}
 	}
 	
