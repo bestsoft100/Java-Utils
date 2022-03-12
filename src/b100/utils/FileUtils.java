@@ -28,8 +28,8 @@ public abstract class FileUtils {
 	
 	public static void createFolderForFile(File file) {
 		if(file == null) throw new NullPointerException();
-		
-		createFolder(file.getParentFile());
+		File parent = file.getParentFile();
+		if(parent != null) createFolder(parent);
 	}
 	
 	public static void createNewFile(File file) {
