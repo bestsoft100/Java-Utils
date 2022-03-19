@@ -24,4 +24,18 @@ public abstract class Utils {
 		}
 	}
 	
+	public static <E> E[] combineArray(Class<E> clazz, E[] array1, E[] array2) {
+		E[] newArray = createArray(clazz, array1.length + array2.length);
+		
+		for(int i=0; i < array1.length; i++) {
+			newArray[i] = array1[i];
+		}
+		
+		for(int i=0; i < array2.length; i++) {
+			newArray[array1.length + i] = array2[i];
+		}
+		
+		return newArray;
+	}
+	
 }
