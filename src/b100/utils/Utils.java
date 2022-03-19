@@ -38,4 +38,10 @@ public abstract class Utils {
 		return newArray;
 	}
 	
+	public static <E> E requireNonNull(E e) {
+		if(e == null) throw new NullPointerException();
+		
+		return e;
+	}
+	
 }
