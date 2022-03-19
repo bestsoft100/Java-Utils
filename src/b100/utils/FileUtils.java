@@ -32,13 +32,14 @@ public abstract class FileUtils {
 		if(parent != null) createFolder(parent);
 	}
 	
-	public static void createNewFile(File file) {
+	public static File createNewFile(File file) {
 		if(file == null) throw new NullPointerException();
 		
 		if(file.exists()) {
 			file.delete();
 		}
 		createFile(file);
+		return file;
 	}
 	
 	public static void createFile(File file) {
