@@ -1,8 +1,10 @@
 package b100.utils;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 
 public abstract class StreamUtils {
 	
@@ -15,6 +17,14 @@ public abstract class StreamUtils {
 			int read = in.read(temp);
 			if(read == -1) break;
 			out.write(temp, 0, read);
+		}
+	}
+	
+	public static void close(Closeable...closeables) {
+		for(Closeable closeable : closeables) {
+			try {
+				closeable.close();
+			}catch (Exception e) {}
 		}
 	}
 	
