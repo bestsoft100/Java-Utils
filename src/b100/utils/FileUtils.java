@@ -1,10 +1,14 @@
 package b100.utils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,12 +145,20 @@ public abstract class FileUtils {
 	}
 	
 	public static List<File> getAllFiles(File folder){
-		if(folder == null) throw new NullPointerException();
-		
-		return getAllFiles(new ArrayList<>(), folder);
+		return getAllFiles(folder, false);
 	}
 	
 	public static List<File> getAllFiles(List<File> files, File folder) {
+		return getAllFiles(files, folder, false);
+	}
+	
+	public static List<File> getAllFiles(File folder, boolean includeFolders){
+		if(folder == null) throw new NullPointerException();
+		
+		return getAllFiles(new ArrayList<>(), folder, includeFolders);
+	}
+	
+	public static List<File> getAllFiles(List<File> files, File folder, boolean includeFolders) {
 		if(files == null) throw new NullPointerException();
 		if(folder == null) throw new NullPointerException();
 		
@@ -156,7 +168,10 @@ public abstract class FileUtils {
 				files.add(file);
 			}
 			if(file.isDirectory()) {
-				getAllFiles(files, file);
+				getAllFiles(files, file, includeFolders);
+				if(includeFolders) {
+					files.add(file);
+				}
 			}
 		}
 		return files;
@@ -172,6 +187,19 @@ public abstract class FileUtils {
 		if(folder == null) throw new NullPointerException();
 		if(!folder.exists()) throw new RuntimeException("Folder "+folder+" doesn't exist!");
 		if(!folder.isDirectory()) throw new RuntimeException("Not a folder: "+folder);
+	}
+	
+	public static void downloadFile(String url, File file) throws IOException {
+		downloadFile(new URL(url), file);
+	}
+	
+	public static void downloadFile(URL url, File file) throws IOException {
+		FileUtils.createNewFile(file);
+		
+		BufferedInputStream in = new BufferedInputStream(url.openStream());
+		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
+		
+		StreamUtils.transferDataAndClose(in, out);
 	}
 	
 }

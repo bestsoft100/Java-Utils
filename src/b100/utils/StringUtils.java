@@ -58,7 +58,7 @@ public abstract class StringUtils {
 			InputStreamReader reader = new InputStreamReader(inputStream);
 			BufferedReader br = new BufferedReader(reader);
 			
-			String string = "";
+			StringBuilder builder = new StringBuilder();
 			String line = null;
 			boolean firstLine = true;
 			
@@ -69,13 +69,13 @@ public abstract class StringUtils {
 					line = "\n" + line;
 				}
 				
-				string += line;
+				builder.append(line);
 			}
 			
 			br.close();
 			reader.close();
 			
-			return string;
+			return builder.toString();
 		}catch (Exception e) {
 			throw new RuntimeException(e);
 		}

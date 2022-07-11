@@ -19,6 +19,11 @@ public abstract class StreamUtils {
 		}
 	}
 	
+	public static void transferDataAndClose(InputStream in, OutputStream out) throws IOException{
+		transferData(in, out);
+		close(in, out);
+	}
+	
 	public static void close(Closeable...closeables) {
 		for(Closeable closeable : closeables) {
 			try {

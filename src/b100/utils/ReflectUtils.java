@@ -1,7 +1,11 @@
 package b100.utils;
 
+import static b100.utils.Utils.*;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class ReflectUtils {
 	
@@ -112,6 +116,42 @@ public abstract class ReflectUtils {
 	
 	public static boolean isStatic(Field field) {
 		return Modifier.isStatic(field.getModifiers());
+	}
+	
+	public static <F, E> E[] getAllObjects(Class<F> fromClass, Class<E> ofClass, F instance) {
+		return getAllObjects(fromClass, ofClass, instance, null);
+	}
+	
+	public static <F, E> E[] getAllObjects(Class<F> fromClass, Class<E> ofClass) {
+		return getAllObjects(fromClass, ofClass, null);
+	}
+	
+	/**
+	 * Get all objects of type E in class F as array
+	 * @param fromClass The Class that has fields of class E
+	 * @param instance The instance where to get the objects, null for static values
+	 */
+	@SuppressWarnings("unchecked")
+	public static <F, E> E[] getAllObjects(Class<F> fromClass, Class<E> ofClass, F instance, Condition<Field, E> condition) {
+		List<E> list = new ArrayList<>();
+		Field[] fields = fromClass.getDeclaredFields();
+		for(Field field : fields) {
+			try {
+				E e = (E) field.get(instance);
+				if(e != null && ofClass.isAssignableFrom(e.getClass())) {
+					if(condition == null || condition.isTrue(field, e)) {
+						list.add(e);
+					}
+				}
+			}catch (Exception e) {}
+		}
+		return toArray(ofClass, list);
+	}
+	
+	public static interface Condition<E, F>{
+		
+		public boolean isTrue(E e, F f);
+		
 	}
 	
 }
